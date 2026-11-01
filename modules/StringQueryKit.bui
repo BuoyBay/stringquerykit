@@ -1,0 +1,115 @@
+Public Closure Function StringPredicate(text As String) As Boolean
+Public Closure Function StringTransform(text As String) As String
+
+Public Function TextBegins(prefix As String, caseSensitive As Boolean = True) As StringPredicate
+    Return Lambda Using (prefix, caseSensitive) (text As String) As Boolean
+        Return String.StartsWith(text, prefix, caseSensitive)
+    End Lambda
+End Function
+
+Public Function TextEnds(suffix As String, caseSensitive As Boolean = True) As StringPredicate
+    Return Lambda Using (suffix, caseSensitive) (text As String) As Boolean
+        Return String.EndsWith(text, suffix, caseSensitive)
+    End Lambda
+End Function
+
+Public Function TextContains(fragment As String, caseSensitive As Boolean = True) As StringPredicate
+    Return Lambda Using (fragment, caseSensitive) (text As String) As Boolean
+        Return String.Contains(text, fragment, caseSensitive)
+    End Lambda
+End Function
+
+Public Function TextIsEmpty() As StringPredicate
+    Return Lambda (text As String) As Boolean
+        Return String.Len(text) = 0
+    End Lambda
+End Function
+
+Public Function PredicateNot(predicate As StringPredicate) As StringPredicate
+    If predicate Is Nil Then Throw New InvalidArgumentException("Predicate must not be Nil")
+    Return Lambda Using (predicate) (text As String) As Boolean
+        Return Not predicate(text)
+    End Lambda
+End Function
+
+Public Function PredicateAll(predicates As Array Of StringPredicate) As StringPredicate
+    Dim snapshot As Array Of StringPredicate = Array.Clone(predicates)
+    For Each predicate As StringPredicate In snapshot
+        If predicate Is Nil Then Throw New InvalidArgumentException("Predicate must not be Nil")
+    Next
+    Return Lambda Using (snapshot) (text As String) As Boolean
+        For Each predicate As StringPredicate In snapshot
+            If Not predicate(text) Then Return False
+        Next
+        Return True
+    End Lambda
+End Function
+
+Public Function PredicateAny(predicates As Array Of StringPredicate) As StringPredicate
+    Dim snapshot As Array Of StringPredicate = Array.Clone(predicates)
+    For Each predicate As StringPredicate In snapshot
+        If predicate Is Nil Then Throw New InvalidArgumentException("Predicate must not be Nil")
+    Next
+    Return Lambda Using (snapshot) (text As String) As Boolean
+        For Each predicate As StringPredicate In snapshot
+            If predicate(text) Then Return True
+        Next
+        Return False
+    End Lambda
+End Function
+
+Public Function TrimText() As StringTransform
+    Return Lambda (text As String) As String
+        Return String.Trim(text)
+    End Lambda
+End Function
+
+Public Function UpperText() As StringTransform
+    Return Lambda (text As String) As String
+        Return String.UCase(text)
+    End Lambda
+End Function
+
+Public Function LowerText() As StringTransform
+    Return Lambda (text As String) As String
+        Return String.LCase(text)
+    End Lambda
+End Function
+
+''' Apply transforms left to right. The captured list is an owned snapshot.
+Public Function TransformChain(transforms As Array Of StringTransform) As StringTransform
+    Dim snapshot As Array Of StringTransform = Array.Clone(transforms)
+    For Each transform As StringTransform In snapshot
+        If transform Is Nil Then Throw New InvalidArgumentException("Transform must not be Nil")
+    Next
+    Return Lambda Using (snapshot) (text As String) As String
+        Dim output As String = text
+        For Each transform As StringTransform In snapshot
+            output = transform(output)
+        Next
+        Return output
+    End Lambda
+End Function
+
+''' Snapshot the input before invoking callbacks; produce a fresh ordered array.
+Public Function MapStrings(items As Array Of String, transform As StringTransform, maxItems As Integer = 100000) As Array Of String
+    If transform Is Nil Then Throw New InvalidArgumentException("Transform must not be Nil")
+    If maxItems < 0 Or Array.Count(items) > maxItems Then Throw New InvalidArgumentException("String query item limit exceeded")
+    Dim snapshot As Array Of String = Array.Clone(items)
+    Dim output() As String
+    For Each item As String In snapshot
+        Array.Append(output, transform(item))
+    Next
+    Return output
+End Function
+
+Public Function FilterStrings(items As Array Of String, predicate As StringPredicate, maxItems As Integer = 100000) As Array Of String
+    If predicate Is Nil Then Throw New InvalidArgumentException("Predicate must not be Nil")
+    If maxItems < 0 Or Array.Count(items) > maxItems Then Throw New InvalidArgumentException("String query item limit exceeded")
+    Dim snapshot As Array Of String = Array.Clone(items)
+    Dim output() As String
+    For Each item As String In snapshot
+        If predicate(item) Then Array.Append(output, item)
+    Next
+    Return output
+End Function
