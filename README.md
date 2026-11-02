@@ -1,4 +1,4 @@
-# Composable string predicates and transforms
+# String predicates
 
 Source-only string-array queries built from owned closures. Inspired by the
 [archived functional-programming article](https://web.archive.org/web/20160220114803/https://www.declaresub.com/articles/2008/01/29/a-bit-of-functional-programming-by-example)
