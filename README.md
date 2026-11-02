@@ -1,6 +1,6 @@
 # Compose string predicates and transformations
 
-Pure Buoy string-array queries built from owned closures. Inspired by the
+Source-only string-array queries built from owned closures. Inspired by the
 [archived functional-programming article](https://web.archive.org/web/20160220114803/https://www.declaresub.com/articles/2008/01/29/a-bit-of-functional-programming-by-example)
 and its questions about combining and negating predicates. This package composes
 existing String operations; StringUtils remains the destination for additional
@@ -58,8 +58,6 @@ On your own machine, install Buoy and run:
 ```sh
 buoy ai init --both
 ```
-
-The generated agent files and editor settings stay local and are ignored by Git.
 
 ## Contributing
 

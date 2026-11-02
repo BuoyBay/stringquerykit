@@ -35,5 +35,3 @@ Buoy's current ASCII-only folding, not locale collation or Unicode normalization
 Trim follows built-in ASCII whitespace semantics; case transforms follow the
 runtime's Unicode mappings. No grapheme segmentation, regex factory, sorting or
 generic Array Map/Filter API is supplied.
-
-Maintainers run the private validation suite before release. See the repository README for public build instructions.
